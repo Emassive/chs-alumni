@@ -67,7 +67,11 @@ export default function Admin() {
       a.full_name?.toLowerCase().includes(q) ||
       a.email?.toLowerCase().includes(q) ||
       String(a.graduation_year || '').includes(q) ||
-      a.message?.toLowerCase().includes(q)
+      a.address?.toLowerCase().includes(q) ||
+      a.phone?.toLowerCase().includes(q) ||
+      a.instruments?.toLowerCase().includes(q) ||
+      a.school_house?.toLowerCase().includes(q) ||
+      a.family_members?.toLowerCase().includes(q)
     )
   })
 
@@ -82,12 +86,16 @@ export default function Admin() {
   }
 
   async function handleExportCSV() {
-    const headers = ['Full Name', 'Email', 'Graduation Year', 'Message', 'Registered At']
+    const headers = ['Name', 'Address', 'Phone', 'Email', 'Graduation Year', 'Instruments', 'School House', 'Family Members', 'Registered At']
     const rows = filtered.map((a) => [
       a.full_name,
+      a.address || '',
+      a.phone || '',
       a.email,
       a.graduation_year || '',
-      (a.message || '').replace(/"/g, '""'),
+      a.instruments || '',
+      a.school_house || '',
+      (a.family_members || '').replace(/"/g, '""'),
       a.created_at ? new Date(a.created_at).toLocaleString() : '',
     ])
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n')
@@ -175,7 +183,7 @@ export default function Admin() {
 
         <main className="max-w-7xl mx-auto px-6 py-8">
           {/* Stats bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             <div className="glass-card rounded-xl p-5">
               <div className="text-sm text-navy-300 mb-1">Total Registrations</div>
               <div className="text-3xl font-bold text-gold-shimmer">{alumni.length}</div>
@@ -187,9 +195,15 @@ export default function Admin() {
               </div>
             </div>
             <div className="glass-card rounded-xl p-5">
-              <div className="text-sm text-navy-300 mb-1">With Message</div>
+              <div className="text-sm text-navy-300 mb-1">With Instruments</div>
               <div className="text-3xl font-bold text-white">
-                {alumni.filter((a) => a.message).length}
+                {alumni.filter((a) => a.instruments).length}
+              </div>
+            </div>
+            <div className="glass-card rounded-xl p-5">
+              <div className="text-sm text-navy-300 mb-1">With Family Links</div>
+              <div className="text-3xl font-bold text-white">
+                {alumni.filter((a) => a.family_members).length}
               </div>
             </div>
           </div>
@@ -261,45 +275,43 @@ export default function Admin() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th
-                        onClick={() => handleSort('full_name')}
-                        className="text-left px-5 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none"
-                      >
+                      <th onClick={() => handleSort('full_name')} className="text-left px-4 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none whitespace-nowrap">
                         Name <SortIcon field="full_name" />
                       </th>
-                      <th
-                        onClick={() => handleSort('email')}
-                        className="text-left px-5 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none"
-                      >
+                      <th className="text-left px-4 py-3.5 text-gold-200/80 font-medium whitespace-nowrap">Address</th>
+                      <th className="text-left px-4 py-3.5 text-gold-200/80 font-medium whitespace-nowrap">Phone</th>
+                      <th onClick={() => handleSort('email')} className="text-left px-4 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none whitespace-nowrap">
                         Email <SortIcon field="email" />
                       </th>
-                      <th
-                        onClick={() => handleSort('graduation_year')}
-                        className="text-left px-5 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none"
-                      >
+                      <th onClick={() => handleSort('graduation_year')} className="text-left px-4 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none whitespace-nowrap">
                         Year <SortIcon field="graduation_year" />
                       </th>
-                      <th className="text-left px-5 py-3.5 text-gold-200/80 font-medium">Message</th>
-                      <th
-                        onClick={() => handleSort('created_at')}
-                        className="text-left px-5 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none"
-                      >
+                      <th className="text-left px-4 py-3.5 text-gold-200/80 font-medium whitespace-nowrap">Instruments</th>
+                      <th onClick={() => handleSort('school_house')} className="text-left px-4 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none whitespace-nowrap">
+                        House <SortIcon field="school_house" />
+                      </th>
+                      <th className="text-left px-4 py-3.5 text-gold-200/80 font-medium whitespace-nowrap">Family at Con High</th>
+                      <th onClick={() => handleSort('created_at')} className="text-left px-4 py-3.5 text-gold-200/80 font-medium cursor-pointer hover:text-gold-200 select-none whitespace-nowrap">
                         Registered <SortIcon field="created_at" />
                       </th>
-                      <th className="px-5 py-3.5"></th>
+                      <th className="px-4 py-3.5"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((a) => (
                       <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td className="px-5 py-3.5 font-medium text-white">{a.full_name}</td>
-                        <td className="px-5 py-3.5 text-navy-200">{a.email}</td>
-                        <td className="px-5 py-3.5 text-navy-200">{a.graduation_year || '—'}</td>
-                        <td className="px-5 py-3.5 text-navy-200 max-w-[200px] truncate">{a.message || '—'}</td>
-                        <td className="px-5 py-3.5 text-navy-300 text-xs whitespace-nowrap">
+                        <td className="px-4 py-3.5 font-medium text-white whitespace-nowrap">{a.full_name}</td>
+                        <td className="px-4 py-3.5 text-navy-200 max-w-[180px] truncate">{a.address || '—'}</td>
+                        <td className="px-4 py-3.5 text-navy-200 whitespace-nowrap">{a.phone || '—'}</td>
+                        <td className="px-4 py-3.5 text-navy-200">{a.email}</td>
+                        <td className="px-4 py-3.5 text-navy-200">{a.graduation_year || '—'}</td>
+                        <td className="px-4 py-3.5 text-navy-200 max-w-[150px] truncate">{a.instruments || '—'}</td>
+                        <td className="px-4 py-3.5 text-navy-200">{a.school_house || '—'}</td>
+                        <td className="px-4 py-3.5 text-navy-200 max-w-[200px] truncate">{a.family_members || '—'}</td>
+                        <td className="px-4 py-3.5 text-navy-300 text-xs whitespace-nowrap">
                           {a.created_at ? new Date(a.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
                         </td>
-                        <td className="px-5 py-3.5">
+                        <td className="px-4 py-3.5">
                           <button
                             onClick={() => handleDelete(a.id)}
                             className="text-red-400/50 hover:text-red-400 transition-colors"

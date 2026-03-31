@@ -115,7 +115,10 @@ function FloatingParticles() {
 }
 
 export default function Home() {
-  const [form, setForm] = useState({ full_name: '', email: '', graduation_year: '', message: '' })
+  const [form, setForm] = useState({
+    full_name: '', address: '', phone: '', email: '',
+    graduation_year: '', instruments: '', school_house: '', family_members: '',
+  })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(null)
@@ -129,7 +132,7 @@ export default function Home() {
     setError(null)
 
     if (!form.full_name || !form.email) {
-      setError('Please provide your full name and email.')
+      setError('Please provide at least your name and email.')
       return
     }
 
@@ -137,9 +140,13 @@ export default function Home() {
     try {
       const payload = {
         full_name: form.full_name,
+        address: form.address || null,
+        phone: form.phone || null,
         email: form.email,
         graduation_year: form.graduation_year ? parseInt(form.graduation_year, 10) : null,
-        message: form.message || null,
+        instruments: form.instruments || null,
+        school_house: form.school_house || null,
+        family_members: form.family_members || null,
       }
 
       const { error: supaError } = await supabase.from('alumni').insert([payload]).select()
@@ -149,7 +156,10 @@ export default function Home() {
         setError(supaError.message || 'Something went wrong. Please try again.')
       } else {
         setSuccess(true)
-        setForm({ full_name: '', email: '', graduation_year: '', message: '' })
+        setForm({
+          full_name: '', address: '', phone: '', email: '',
+          graduation_year: '', instruments: '', school_house: '', family_members: '',
+        })
       }
     } catch (err) {
       setError(err.message ?? String(err))
@@ -257,7 +267,7 @@ export default function Home() {
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
                     <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
-                      Full Name <span className="text-gold-500">*</span>
+                      Name <span className="text-gold-500">*</span>
                     </label>
                     <input
                       name="full_name"
@@ -270,7 +280,34 @@ export default function Home() {
 
                   <div>
                     <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
-                      Email <span className="text-gold-500">*</span>
+                      Address
+                    </label>
+                    <input
+                      name="address"
+                      value={form.address}
+                      onChange={handleChange}
+                      placeholder="123 Main St, Sydney NSW 2000"
+                      className="input-fancy w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
+                      Phone Number/s
+                    </label>
+                    <input
+                      name="phone"
+                      type="tel"
+                      value={form.phone}
+                      onChange={handleChange}
+                      placeholder="0412 345 678"
+                      className="input-fancy w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
+                      Email Address <span className="text-gold-500">*</span>
                     </label>
                     <input
                       name="email"
@@ -284,7 +321,7 @@ export default function Home() {
 
                   <div>
                     <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
-                      Graduation Year <span className="text-white/30">(optional)</span>
+                      Graduation Year
                     </label>
                     <input
                       name="graduation_year"
@@ -298,14 +335,40 @@ export default function Home() {
 
                   <div>
                     <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
-                      Message <span className="text-white/30">(optional)</span>
+                      Instrument/s Played
+                    </label>
+                    <input
+                      name="instruments"
+                      value={form.instruments}
+                      onChange={handleChange}
+                      placeholder="e.g. Violin, Piano"
+                      className="input-fancy w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
+                      School House
+                    </label>
+                    <input
+                      name="school_house"
+                      value={form.school_house}
+                      onChange={handleChange}
+                      placeholder="e.g. Dobroyd"
+                      className="input-fancy w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gold-200/80 mb-1.5">
+                      Family Members Who Attended Con High
                     </label>
                     <textarea
-                      name="message"
-                      value={form.message}
+                      name="family_members"
+                      value={form.family_members}
                       onChange={handleChange}
                       rows={3}
-                      placeholder="Share a memory or let us know your instrument..."
+                      placeholder="e.g. My sister Sarah Smith graduated in 2001"
                       className="input-fancy w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none resize-none"
                     />
                   </div>
