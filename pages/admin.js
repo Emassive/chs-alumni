@@ -13,9 +13,11 @@ export default function Admin() {
   const [sortField, setSortField] = useState('created_at')
   const [sortDir, setSortDir] = useState('desc')
 
+  const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS
+
   function handleLogin(e) {
     e.preventDefault()
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASS) {
+    if (password === adminPass) {
       setAuthenticated(true)
       setAuthError(false)
     } else {
