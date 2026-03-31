@@ -3,12 +3,25 @@ import Head from 'next/head'
 import { supabase } from '../lib/supabaseClient'
 
 export default function Admin() {
+  const [authenticated, setAuthenticated] = useState(false)
+  const [password, setPassword] = useState('')
+  const [authError, setAuthError] = useState(false)
   const [alumni, setAlumni] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [sortField, setSortField] = useState('created_at')
   const [sortDir, setSortDir] = useState('desc')
+
+  function handleLogin(e) {
+    e.preventDefault()
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASS) {
+      setAuthenticated(true)
+      setAuthError(false)
+    } else {
+      setAuthError(true)
+    }
+  }
 
   async function fetchAlumni() {
     setLoading(true)
@@ -28,8 +41,8 @@ export default function Admin() {
   }
 
   useEffect(() => {
-    fetchAlumni()
-  }, [sortField, sortDir])
+    if (authenticated) fetchAlumni()
+  }, [sortField, sortDir, authenticated])
 
   function handleSort(field) {
     if (sortField === field) {
@@ -83,6 +96,51 @@ export default function Admin() {
     link.download = `alumni-export-${new Date().toISOString().slice(0, 10)}.csv`
     link.click()
     URL.revokeObjectURL(url)
+  }
+
+  if (!authenticated) {
+    return (
+      <>
+        <Head>
+          <title>Admin Login | Alumni Registrations</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+        </Head>
+        <div className="min-h-screen bg-animated-gradient text-white flex items-center justify-center px-6">
+          <div className="glass-card rounded-2xl p-8 sm:p-10 w-full max-w-sm animate-fade-in-up">
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                Admin Access
+              </h1>
+              <p className="text-sm text-navy-300">Enter the admin password to continue.</p>
+            </div>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setAuthError(false) }}
+                placeholder="Password"
+                className="input-fancy w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none"
+                autoFocus
+              />
+              {authError && (
+                <p className="text-red-400 text-sm">Incorrect password.</p>
+              )}
+              <button
+                type="submit"
+                className="w-full bg-gold-500 hover:bg-gold-400 text-navy-900 font-semibold py-3 rounded-lg transition-all duration-300"
+              >
+                Sign In
+              </button>
+            </form>
+            <div className="mt-4 text-center">
+              <a href="/" className="text-xs text-navy-400 hover:text-gold-400 transition-colors">&larr; Back to site</a>
+            </div>
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (

@@ -347,6 +347,9 @@ export default function Home() {
           <p className="text-sm text-navy-300 font-body">
             Conservatorium High School &middot; 110th Anniversary Celebrations &middot; 2028
           </p>
+          <a href="/admin" className="inline-block mt-3 text-xs text-navy-500 hover:text-gold-400 transition-colors">
+            Admin
+          </a>
         </footer>
       </div>
     </>
